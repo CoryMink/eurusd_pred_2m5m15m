@@ -73,7 +73,7 @@ with col2:
     st.table(pd.Series(y_preds,index=intervals))
 
 enddate = dt.datetime.now()
-startdate = enddate - dt.timedelta(minutes=60)
+startdate = enddate - dt.timedelta(minutes=40)
 data = yf.download(tickers=tickers,interval='1m', 
                    start=startdate, end=enddate,progress=False)
 def support(df,l,n1,n2):
