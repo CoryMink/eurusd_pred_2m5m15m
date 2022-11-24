@@ -12,8 +12,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing   import MinMaxScaler
 from sklearn.linear_model    import Ridge
 
+    
+# Streamlit showtime
+st_autorefresh(interval=30000, key='prediction')
+st.title("EURUSD 💶💵 Prediction")
+
+tik = st.selectbox('Select the currency pair',
+                   ("EURUSD=x","EURAUD=x"))
+
 # Predictions ======================================================
-tickers   = 'EURUSD=x'          # symbol based on yfinance
+tickers   = tik                 # symbol based on yfinance
 intervals = ['2m','5m','15m']   # time intervals
 y_preds   = []                  # blank prediction list
 for i in intervals:
@@ -21,7 +29,7 @@ for i in intervals:
     enddate = dt.datetime.now()
     startdate = enddate - dt.timedelta(minutes=50000)
     data = yf.download(tickers=tickers,interval=i, 
-                    start=startdate, end=enddate,progress=False)
+                       start=startdate, end=enddate,progress=False)
     # adding indicators
     data['ROC']  = ta.roc(data.Close, length=21)
     data['EMAM'] = ta.ema(data.Close, length=100)
@@ -31,12 +39,12 @@ for i in intervals:
     data['PDIS'] = ta.pdist(data.Open,data.High,data.Low,data.Close)
     data['EBSW'] = ta.ebsw(data.Close, length=21)
     data['Poly1'] = data['BOP'] * data['PDIS'] * data['WILL']
+    data['ATR']   = ta.atr(data.High,data.Low,data.Close,length=14,mamode='SMA')
     data['NextClose'] = data['Close'].shift(-1)
     data.dropna(inplace=True)
     data.reset_index(inplace=True)
-    # ===================================================================== #
     X = data[['Open','High','Low','ROC','EMAM','EMAS',
-              'WILL','BOP','PDIS','EBSW','Poly1']]
+              'WILL','BOP','PDIS','EBSW','Poly1','ATR']]
     y = data['NextClose']
     X_train,X_test,y_train,y_test = train_test_split(X,y,shuffle=False,test_size=0.1)
     sc = MinMaxScaler()
@@ -46,13 +54,8 @@ for i in intervals:
     rg.fit(X_train_sc,y_train)
     y_pred = rg.predict(X_test_sc)
     y_preds.append(round(y_pred[-1],6))
-
 # =============================================================== #
     
-# Streamlit showtime
-st_autorefresh(interval=30000, key='prediction')
-st.title("EURUSD 💶💵 Prediction")
-
 col1, col2 = st.columns(2, gap='small')
 
 with col1:
@@ -73,8 +76,8 @@ with col2:
     st.table(pd.Series(y_preds,index=intervals))
 
 enddate = dt.datetime.now()
-startdate = enddate - dt.timedelta(minutes=40)
-data = yf.download(tickers=tickers,interval='1m', 
+startdate = enddate - dt.timedelta(minutes=450)
+data = yf.download(tickers=tik,interval='1m', 
                    start=startdate, end=enddate,progress=False)
 def support(df,l,n1,n2):
 
