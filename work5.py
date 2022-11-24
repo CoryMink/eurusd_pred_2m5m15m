@@ -18,7 +18,7 @@ st_autorefresh(interval=30000, key='prediction')
 st.title("EURUSD 💶💵 Prediction")
 
 tik = st.selectbox('Select the currency pair',
-                   ("EURUSD=x","EURAUD=x"))
+                   ("EURUSD=x","USDJPY=x","GBPUSD=x"))
 
 # Predictions ======================================================
 tickers   = tik                 # symbol based on yfinance
@@ -76,7 +76,7 @@ with col2:
     st.table(pd.Series(y_preds,index=intervals))
 
 enddate = dt.datetime.now()
-startdate = enddate - dt.timedelta(minutes=45)
+startdate = enddate - dt.timedelta(minutes=450)
 data = yf.download(tickers=tik,interval='1m', 
                    start=startdate, end=enddate,progress=False)
 def support(df,l,n1,n2):
